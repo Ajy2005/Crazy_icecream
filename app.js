@@ -24,7 +24,9 @@ let USER_DATABASE = {
     "9529978587": { 
         name: "Operator Name", createDate: "19-07-2026", role: "PRODUCTION", 
         department: "ICECREAM", password: "123456" 
-    }
+    }"a9529978587": { 
+        name: "Ajay", createDate: "19-07-2026", role: "RETURN", 
+        department: "ICECREAM", password: "123456" 
 };
 
 // 3. LOGIN LOGIC
