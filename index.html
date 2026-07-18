@@ -254,6 +254,16 @@
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         // 1. FIREBASE CONFIG (Add your actual Firebase keys here)
+       const USER_ROLES = {
+    // तुमचा स्वतःचा ईमेल येथे ॲड करा
+    "ajay@gmail.com": { role: "ADMIN", department: "ALL" },
+    
+    // जुने युझर्स
+    "admin@crazyicecream.com": { role: "ADMIN", department: "ALL" },
+    "cone@crazyicecream.com": { role: "PRODUCTION", department: "CONE" },
+    "icecream@crazyicecream.com": { role: "PRODUCTION", department: "ICECREAM" },
+    "dispatch@crazyicecream.com": { role: "DISPATCH", department: "ALL" }
+};
         const firebaseConfig = {
             apiKey: "AIzaSyCu9C0ZpPnKzPCJ11gQc7Vlk3lnfaJH9fU",
             authDomain: "my-login-app-df9a7.firebaseapp.com",
