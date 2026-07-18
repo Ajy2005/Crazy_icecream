@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazy Icecream - Production Management</title>
+    <!-- Logo -->
+    <link rel="icon" href="images/icecream-logo.png" sizes="any">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg, #f8fafc);
+        }
+
+        /* --- LOGIN PAGE STYLES (MODIFIED FOR CRAZY ICECREAM) --- */
+        .login-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1000;
+            /* Professional Blue Gradient Background */
+            background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%);
+        }
+
+        .login-box {
+            position: relative;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .login-box h2 {
+            width: 100%;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: #1e3a8a; /* Dark Blue */
+            margin-bottom: 5px;
+        }
+
+        .login-box .input-group { position: relative; }
+        
+        .login-box .input-group label {
+            color: #1e3a8a; 
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .login-box .input-group input {
+            width: 100%;
+            padding: 14px 20px;
+            outline: none;
+            font-size: 1.1em;
+            color: #1e40af; 
+            border-radius: 12px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            transition: 0.3s;
+        }
+        
+        .login-box .input-group input:focus {
+            border-color: #3b82f6;
+            background: #fff;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            outline: none;
+            background: #2563eb; 
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: 0.3s;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        
+        .login-box button:hover:not(:disabled) { background: #1d4ed8; }
+        .login-box button:disabled { background-color:#93c5fd; cursor: not-allowed; }
+
+        .switch-login-method {
+            font-size: 0.95em;
+            color: #2563eb; 
+            font-weight: 500;
+            text-decoration: underline;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .error-message {
+            color: #b91c1c;
+            font-weight: 600;
+            background-color: #fee2e2;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #f87171;
+        }
+
+        /* --- DASHBOARD STYLES --- */
+        :root { 
+            --primary-bg: #f8fafc; 
+            --sidebar-bg: #1e293b; 
+            --sidebar-text: #cbd5e1; 
+            --sidebar-hover-bg: #334155; 
+            --accent-color: #3b82f6; 
+            --accent-color-dark: #2563eb; 
+            --danger-color: #dc2626; 
+            --danger-color-dark: #b91c1c; 
+            --text-dark: #0f172a; 
+            --text-light: #64748b; 
+            --card-bg: #ffffff; 
+            --border-color: #e2e8f0; 
+            --shadow-color: rgba(149, 157, 165, 0.1); 
+        }
+        
+        .hidden { display: none !important; }
+        .dashboard-container { display: flex; height: 100vh; opacity: 0; transition: opacity .5s ease; }
+        .dashboard-container.visible { opacity: 1; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; flex-shrink: 0; padding: 20px; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; transition: left 0.3s ease-in-out; z-index: 100;}
+        .sidebar-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--sidebar-hover-bg); }
+        .sidebar-header h2 { font-size: 1.4rem; font-weight: 600; color: #fff; margin-top: 10px; }
+        .sidebar-nav ul { list-style: none; padding: 0; }
+        .sidebar-nav li a { display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; padding: 15px 20px; border-radius: 8px; margin-bottom: 10px; transition: background-color .2s,color .2s; font-weight: 500; }
+        .sidebar-nav li a.active, .sidebar-nav li a:hover { background-color: var(--accent-color); color: #fff; }
+        .sidebar-nav li a i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 30px; display: flex; flex-direction: column; height: 100vh; transition: margin-left 0.3s ease-in-out; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-shrink: 0; }
+        .header-title-wrapper { display: flex; align-items: center; gap: 20px; }
+        .header h1 { font-size: 2.2rem; color: var(--text-dark); font-weight: 700; }
+        .open-sheet-btn { display: inline-flex; align-items: center; gap: 8px; background-color: var(--accent-color); color: #fff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease; }
+        .open-sheet-btn:hover { background-color: var(--accent-color-dark); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .user-profile { display: flex; align-items: center; gap: 15px; font-size: 1rem; }
+        .user-profile span { font-weight: 600; color: var(--text-dark); }
+        .logout-btn { background: 0 0; border: none; color: var(--danger-color); font-size: 1.2rem; cursor: pointer; background-color: #fee2e2; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+        .logout-btn:hover { background-color: #fecaca; color: var(--danger-color-dark); }
+        .content-wrapper { flex-grow: 1; overflow: hidden; border-radius: 12px; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); }
+        .content-view { width: 100%; height: 100%; animation: fadeIn .5s ease-in-out; }
+        .content-view iframe { width: 100%; height: 100%; border: none; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .menu-toggle-btn { display: none; background: none; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer; }
+        .content-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 99; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .content-overlay.active { display: block; opacity: 1; }
+
+        @media (max-width: 992px) { 
+            .menu-toggle-btn { display: block; } 
+            .sidebar { left: -260px; box-shadow: 5px 0 15px rgba(0,0,0,0.1); } 
+            .sidebar.open { left: 0; } 
+            .main-content { margin-left: 0; width: 100%; padding: 20px; } 
+            .header { flex-wrap: wrap; gap: 15px; } 
+            .header h1 { font-size: 1.8rem; } 
+            .user-profile span { display: none; } 
+        }
+        @media (max-width: 768px) { 
+            .login-box { width: 90%; padding: 25px; } 
+            .login-box h2 { font-size: 1.8em; } 
+            .header h1 { font-size: 1.5rem; } 
+            .open-sheet-btn { padding: 6px 12px; font-size: 0.8rem; } 
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="login-container">
+        <section class="login-section">
+            <div class="login-box">
+                <h2>Staff Login</h2>
+
+                <div id="email-login-view">
+                    <form id="login-form">
+                        <div class="input-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" required placeholder="you@crazyicecream.com">
+                        </div>
+                        <div class="input-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit">Login</button>
+                    </form>
+                    <p class="switch-login-method" onclick="app.toggleLoginView('phone')">Login with Mobile OTP</p>
+                </div>
+                
+                <div id="phone-login-view" class="hidden">
+                    <form id="phone-login-form">
+                        <div class="input-group">
+                            <label for="phone-number">Mobile Number</label>
+                            <input type="tel" id="phone-number" placeholder="+91 98765 43210" required>
+                        </div>
+                        <button id="send-otp-btn" type="submit">Send OTP</button>
+                    </form>
+                    <p class="switch-login-method" onclick="app.toggleLoginView('email')">Login with Email</p>
+                </div>
+
+                <div id="otp-login-view" class="hidden">
+                    <form id="otp-login-form">
+                        <p style="color: #1e3a8a; text-align: center; margin-bottom: 15px; font-size: 0.9em;">Enter the 6-digit code sent to your mobile.</p>
+                        <div class="input-group">
+                            <label for="otp-code">OTP Code</label>
+                            <input type="number" id="otp-code" required>
+                        </div>
+                        <button id="verify-otp-btn" type="submit">Verify OTP</button>
+                    </form>
+                    <p class="switch-login-method" onclick="app.toggleLoginView('phone')">Change Number</p>
+                </div>
+                
+                <p id="error-message" class="error-message hidden"></p>
+                <div id="recaptcha-container"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Crazy Icecream Dashboard -->
+    <div id="dashboard-container" class="dashboard-container hidden">
+        <div id="content-overlay" class="content-overlay"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Crazy Icecream</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <!-- New Links Added Here -->
+                    <li><a href="#dashboard-view" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+                    <li><a href="#production-view"><i class="fa-solid fa-industry"></i> Production</a></li>
+                    <li><a href="#dispatch-view"><i class="fa-solid fa-truck-fast"></i> Dispatch</a></li>
+                    <li><a href="#returns-view"><i class="fa-solid fa-rotate-left"></i> Returns</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title-wrapper">
+                    <button id="menu-toggle-btn" class="menu-toggle-btn"><i class="fa-solid fa-bars"></i></button>
+                    <h1 id="main-header-title">Dashboard</h1>
+                    <a href="#" id="open-sheet-btn" class="open-sheet-btn hidden" target="_blank">
+                        View Database <i class="fa-solid fa-database"></i>
+                    </a>
+                </div>
+                <div class="user-profile">
+                    <span id="user-email"></span>
+                    <button id="logout-btn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </header>
+            
+            <!-- IFRAME SECTIONS -->
+            <div class="content-wrapper">
+                
+                <!-- 1. Admin Dashboard View -->
+                <section id="dashboard-view" class="content-view">
+                   <iframe src="YOUR_DASHBOARD_APPSCRIPT_URL_HERE"></iframe>
+                </section>
+                
+                <!-- 2. Production Entry View -->
+                <section id="production-view" class="content-view hidden">
+                  <iframe src="YOUR_PRODUCTION_APPSCRIPT_URL_HERE"></iframe>
+                </section>
+                
+                <!-- 3. Dispatch View -->
+                <section id="dispatch-view" class="content-view hidden">
+                   <iframe src="YOUR_DISPATCH_APPSCRIPT_URL_HERE"></iframe>
+                </section>
+
+                <!-- 4. Returns View -->
+                <section id="returns-view" class="content-view hidden">
+                   <iframe src="YOUR_RETURNS_APPSCRIPT_URL_HERE"></iframe>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript (Firebase & Navigation Logic) -->
+    <script>
+    const app = (() => {
+        // --- 1. CORE SETUP & CONFIGURATION ---
+        const CONFIG = {
+            // NOTE: Keep your Firebase config here
+            firebase: { apiKey: "AIzaSyCu9C0ZpPnKzPCJ11gQc7Vlk3lnfaJH9fU", authDomain: "my-login-app-df9a7.firebaseapp.com", projectId: "my-login-app-df9a7", storageBucket: "my-login-app-df9a7.appspot.com", messagingSenderId: "325062660131", appId: "1:325062660131:web:09965afc828fcb26d76196" },
+        };
+
+        // Put the Google Sheet Master Database Links Here
+        const GOOGLE_SHEET_URLS = {
+            'dashboard-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit',
+            'production-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit',
+            'dispatch-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit',
+            'returns-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit'
+        };
+
+        const state = { auth: null, recaptchaVerifier: null, confirmationResult: null, navInitialized: false };
+        const DOMElements = {
+            loginContainer: document.getElementById('login-container'),
+            dashboardContainer: document.getElementById('dashboard-container'),
+            userEmail: document.getElementById('user-email'),
+            emailLoginView: document.getElementById('email-login-view'),
+            phoneLoginView: document.getElementById('phone-login-view'),
+            otpLoginView: document.getElementById('otp-login-view'),
+            errorMessage: document.getElementById('error-message'),
+            mainHeaderTitle: document.getElementById('main-header-title'),
+            openSheetBtn: document.getElementById('open-sheet-btn'),
+            menuToggleBtn: document.getElementById('menu-toggle-btn'),
+            sidebar: document.getElementById('sidebar'),
+            contentOverlay: document.getElementById('content-overlay'),
+        };
+        
+        // --- 2. UI & NAVIGATION ---
+        function handleNavigation(e) {
+            e.preventDefault();
+            const link = e.currentTarget;
+            const targetId = link.getAttribute('href').substring(1);
+
+            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+
+            document.querySelectorAll('.content-view').forEach(view => {
+                view.classList.toggle('hidden', view.id !== targetId);
+            });
+
+            DOMElements.mainHeaderTitle.textContent = link.innerText.trim();
+            
+            if (GOOGLE_SHEET_URLS[targetId] && GOOGLE_SHEET_URLS[targetId] !== 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit') {
+                DOMElements.openSheetBtn.href = GOOGLE_SHEET_URLS[targetId];
+                DOMElements.openSheetBtn.classList.remove('hidden');
+            } else {
+                DOMElements.openSheetBtn.classList.add('hidden');
+            }
+            
+            if (window.innerWidth <= 992) {
+                closeMobileMenu();
+            }
+        }
+        
+        function showErrorMessage(message) {
+            DOMElements.errorMessage.textContent = message;
+            DOMElements.errorMessage.classList.remove('hidden');
+        }
+
+        function toggleLoginView(view) {
+            DOMElements.errorMessage.classList.add('hidden');
+            DOMElements.emailLoginView.classList.toggle('hidden', view !== 'email');
+            DOMElements.phoneLoginView.classList.toggle('hidden', view !== 'phone');
+            DOMElements.otpLoginView.classList.toggle('hidden', view !== 'otp');
+        }
+
+        function openMobileMenu() {
+            DOMElements.sidebar.classList.add('open');
+            DOMElements.contentOverlay.classList.add('active');
+        }
+        function closeMobileMenu() {
+            DOMElements.sidebar.classList.remove('open');
+            DOMElements.contentOverlay.classList.remove('active');
+        }
+        
+        // --- 3. INITIALIZATION & AUTH ---
+        function init() {
+            firebase.initializeApp(CONFIG.firebase);
+            state.auth = firebase.auth();
+            
+            state.auth.onAuthStateChanged(user => {
+                if (user) {
+                    DOMElements.userEmail.textContent = user.email || user.phoneNumber;
+                    DOMElements.loginContainer.classList.add('hidden');
+                    DOMElements.dashboardContainer.classList.remove('hidden');
+                    setTimeout(() => DOMElements.dashboardContainer.classList.add('visible'), 50);
+
+                    if (!state.navInitialized) {
+                        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                            link.addEventListener('click', handleNavigation);
+                        });
+                        DOMElements.menuToggleBtn.addEventListener('click', openMobileMenu);
+                        DOMElements.contentOverlay.addEventListener('click', closeMobileMenu);
+                        state.navInitialized = true;
+                    }
+                    document.querySelector('.sidebar-nav a[href="#dashboard-view"]').click();
+
+                } else {
+                    toggleLoginView('email');
+                    DOMElements.loginContainer.classList.remove('hidden');
+                    DOMElements.dashboardContainer.classList.add('hidden');
+                    DOMElements.dashboardContainer.classList.remove('visible');
+                    if(state.navInitialized) {
+                        DOMElements.menuToggleBtn.removeEventListener('click', openMobileMenu);
+                        DOMElements.contentOverlay.removeEventListener('click', closeMobileMenu);
+                        state.navInitialized = false;
+                    }
+                    if (!state.recaptchaVerifier) {
+                         state.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+                    }
+                }
+            });
+
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                state.auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value)
+                    .catch(err => { showErrorMessage(err.message); });
+            });
+            
+            document.getElementById('phone-login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+                state.auth.signInWithPhoneNumber(document.getElementById('phone-number').value, state.recaptchaVerifier)
+                    .then(res => { state.confirmationResult = res; toggleLoginView('otp'); })
+                    .catch(err => { showErrorMessage("Error: " + err.message); if(typeof state.recaptchaVerifier.render === 'function') {state.recaptchaVerifier.render().then(id => state.recaptchaVerifier.reset(id));} })
+                    .finally(() => { btn.disabled = false; btn.textContent = 'Send OTP'; });
+            });
+
+            document.getElementById('otp-login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                btn.disabled = true;
+                btn.textContent = 'Verifying...';
+                state.confirmationResult.confirm(document.getElementById('otp-code').value)
+                    .catch(err => { showErrorMessage("Invalid OTP. Please try again."); })
+                    .finally(() => { btn.disabled = false; btn.textContent = 'Verify OTP'; });
+            });
+
+            document.getElementById('logout-btn')?.addEventListener('click', () => state.auth.signOut());
+        }
+
+        return { init, toggleLoginView };
+    })();
+
+    document.addEventListener('DOMContentLoaded', app.init);
+    </script>
+</body>
+</html>
