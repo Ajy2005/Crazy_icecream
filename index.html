@@ -16,10 +16,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
@@ -41,7 +37,6 @@
         .input-group input:focus { border-color: #3b82f6; }
         .login-btn { width: 100%; padding: 12px; background: #2563eb; color: #fff; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         .login-btn:hover { background: #1d4ed8; }
-        .switch-method { color: #2563eb; font-size: 0.9em; text-align: center; margin-top: 10px; cursor: pointer; text-decoration: underline; }
 
         /* --- DASHBOARD LAYOUT --- */
         .hidden { display: none !important; }
@@ -69,45 +64,17 @@
         <section class="login-section">
             <div class="login-box">
                 <h2>Crazy Icecream</h2>
-                
-                <div id="email-login-view">
-                    <form id="login-form">
-                        <div class="input-group">
-                            <label>Email Address</label>
-                            <input type="email" id="email" required placeholder="user@crazyicecream.com">
-                        </div>
-                        <div class="input-group">
-                            <label>Password</label>
-                            <input type="password" id="password" required placeholder="••••••••">
-                        </div>
-                        <button type="submit" class="login-btn">Login</button>
-                    </form>
-                    <p class="switch-method" onclick="toggleLoginView('phone')">Login with Mobile OTP</p>
-                </div>
-                
-                <div id="phone-login-view" class="hidden">
-                    <form id="phone-login-form">
-                        <div class="input-group">
-                            <label>Mobile Number</label>
-                            <input type="tel" id="phone-number" placeholder="+91 98765 43210" required>
-                        </div>
-                        <button type="submit" class="login-btn" id="send-otp-btn">Send OTP</button>
-                    </form>
-                    <p class="switch-method" onclick="toggleLoginView('email')">Login with Email</p>
-                </div>
-
-                <div id="otp-login-view" class="hidden">
-                    <form id="otp-login-form">
-                        <p class="text-center text-sm text-blue-800 mb-2">Enter 6-digit OTP sent to your phone</p>
-                        <div class="input-group">
-                            <input type="number" id="otp-code" required>
-                        </div>
-                        <button type="submit" class="login-btn">Verify OTP</button>
-                    </form>
-                </div>
-                
-                <p id="error-message" class="text-red-500 font-bold text-center mt-3 hidden"></p>
-                <div id="recaptcha-container"></div>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label>Login ID (Email/Phone)</label>
+                        <input type="text" id="login-id" required placeholder="Admin@Crazy.in or 9529978587">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
             </div>
         </section>
     </div>
@@ -119,11 +86,9 @@
             <h2>🍦 Crazy Icecream</h2>
             <nav class="sidebar-nav">
                 <ul id="nav-list">
-                    <!-- Admin Tabs -->
                     <li class="admin-only hidden"><a href="#dashboard-view" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Live Dashboard</a></li>
                     <li class="admin-only hidden"><a href="#user-control-view" class="nav-link"><i class="fa-solid fa-users-gear"></i> User Control</a></li>
                     
-                    <!-- Operator Tabs -->
                     <li class="production-tab hidden"><a href="#production-view" class="nav-link"><i class="fa-solid fa-industry"></i> Production Entry</a></li>
                     <li class="dispatch-tab hidden"><a href="#dispatch-view" class="nav-link"><i class="fa-solid fa-truck-fast"></i> Dispatch</a></li>
                     <li class="returns-tab hidden"><a href="#returns-view" class="nav-link"><i class="fa-solid fa-rotate-left"></i> Returns</a></li>
@@ -145,21 +110,20 @@
                 
                 <!-- A. DASHBOARD VIEW (Admin Only) -->
                 <section id="dashboard-view" class="content-view p-6 bg-gray-50">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                            <p class="text-gray-500 text-sm">Today's Production</p>
+                            <p class="text-gray-500 text-sm">Total Production</p>
                             <h3 class="text-2xl font-bold">1,250 Boxes</h3>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                            <p class="text-gray-500 text-sm">Today's Dispatch</p>
+                            <p class="text-gray-500 text-sm">Total Dispatch</p>
                             <h3 class="text-2xl font-bold">800 Boxes</h3>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-                            <p class="text-gray-500 text-sm">Current Stock</p>
+                            <p class="text-gray-500 text-sm">Closing Stock</p>
                             <h3 class="text-2xl font-bold">3,450 Boxes</h3>
                         </div>
                     </div>
-                    <!-- Chart Placeholder -->
                     <div class="bg-white p-6 rounded-lg shadow w-full max-w-md mx-auto">
                         <h3 class="text-lg font-bold mb-4 text-center">Month Report</h3>
                         <canvas id="myPieChart"></canvas>
@@ -169,31 +133,49 @@
                 <!-- B. USER CONTROL VIEW (Admin Only) -->
                 <section id="user-control-view" class="content-view hidden p-6 bg-gray-50">
                     <h2 class="text-2xl font-bold text-blue-900 mb-6 border-b pb-2"><i class="fa-solid fa-users-gear"></i> User & Department Control</h2>
-                    <div class="bg-white p-6 rounded-xl shadow-md max-w-lg">
-                        <form id="add-user-form" class="space-y-4">
-                            <div>
-                                <label class="font-semibold">User Email</label>
-                                <input type="text" id="new-user-email" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="operator@crazyicecream.com">
-                            </div>
-                            <div>
-                                <label class="font-semibold">Select Role</label>
-                                <select id="new-user-role" onchange="toggleDepartmentSelect()" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>Choose Role...</option>
-                                    <option value="PRODUCTION">Machine Operator (Production)</option>
-                                    <option value="DISPATCH">Dispatcher</option>
-                                    <option value="ADMIN">Admin</option>
-                                </select>
-                            </div>
-                            <div id="dept-selection-div" class="hidden">
-                                <label class="font-semibold">Assign Department</label>
-                                <select id="new-user-dept" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>Choose Dept...</option>
-                                    <option value="CONE">Cone Department</option>
-                                    <option value="ICECREAM">Icecream Processing</option>
-                                </select>
-                            </div>
-                            <button type="button" onclick="saveNewUser()" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700">Save User</button>
-                        </form>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md col-span-1 h-fit border-t-4 border-blue-600">
+                            <h3 class="font-bold text-lg mb-4 text-gray-800">Add New User</h3>
+                            <form id="add-user-form" class="space-y-3">
+                                <div><label class="font-semibold text-sm">Name</label><input type="text" id="new-name" required class="w-full p-2 border rounded"></div>
+                                <div><label class="font-semibold text-sm">Login ID (Phone/Email)</label><input type="text" id="new-id" required class="w-full p-2 border rounded"></div>
+                                <div><label class="font-semibold text-sm">Password</label><input type="text" id="new-password" required class="w-full p-2 border rounded"></div>
+                                <div>
+                                    <label class="font-semibold text-sm">Role</label>
+                                    <select id="new-role" onchange="toggleDepartmentSelect()" required class="w-full p-2 border rounded">
+                                        <option value="" disabled selected>Choose Role...</option>
+                                        <option value="PRODUCTION">Operator (Production)</option>
+                                        <option value="DISPATCH">Dispatcher</option>
+                                        <option value="RETURN">Returner / Damage</option>
+                                        <option value="ADMIN">Admin</option>
+                                    </select>
+                                </div>
+                                <div id="dept-selection-div" class="hidden">
+                                    <label class="font-semibold text-sm">Department</label>
+                                    <select id="new-dept" class="w-full p-2 border rounded">
+                                        <option value="" disabled selected>Choose Department...</option>
+                                        <option value="CONE">Cone Department</option>
+                                        <option value="ICECREAM">Icecreame Processing Dept</option>
+                                        <option value="NOVELTY">Novelty Department</option>
+                                        <option value="KULFI">Kulfi Packing Department</option>
+                                        <option value="MACHINE_PACKING">Machine Packing Dept</option>
+                                    </select>
+                                </div>
+                                <button type="button" onclick="saveNewUser()" class="w-full bg-blue-600 text-white font-bold py-2 rounded mt-2 hover:bg-blue-700">Save User</button>
+                            </form>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md col-span-2 overflow-x-auto border-t-4 border-gray-600">
+                            <h3 class="font-bold text-lg mb-4 text-gray-800">System Users Database</h3>
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-blue-50 text-blue-900 border-b-2">
+                                        <th class="p-2">Name</th><th class="p-2">Create Date</th><th class="p-2">Role</th>
+                                        <th class="p-2">Department</th><th class="p-2">Login ID</th><th class="p-2">Password</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-table-body"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 
@@ -202,28 +184,24 @@
                     <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-500 w-full max-w-md h-fit">
                         <div class="text-center mb-6">
                             <h2 class="text-xl font-bold text-blue-800 underline">Production Entry</h2>
-                            <p class="text-sm text-red-500 font-bold">(Only for operator - No Edit)</p>
+                            <p class="text-sm text-red-500 font-bold">(Only for operator)</p>
                         </div>
                         <form class="space-y-4">
                             <div class="flex justify-between items-center border-b pb-2">
                                 <label class="font-semibold">Date & Time:</label>
                                 <span id="autoDateTime" class="bg-gray-200 px-2 py-1 rounded text-sm font-mono"></span>
                             </div>
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <label class="font-semibold">Product Name:</label>
-                                <!-- RBAC will fill this Dropdown based on Department -->
-                                <select id="production-product-list" class="border p-1 rounded w-48 font-semibold"></select>
+                            <div class="flex flex-col border-b pb-2">
+                                <label class="font-semibold mb-1">Product Name:</label>
+                                <select id="production-product-list" class="border p-2 rounded w-full font-semibold"></select>
                             </div>
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <label class="font-semibold">Quantity:</label>
-                                <input type="number" class="border p-1 rounded w-48" placeholder="e.g. 150">
+                            <div class="flex flex-col border-b pb-2">
+                                <label class="font-semibold mb-1">Quantity:</label>
+                                <input type="number" class="border p-2 rounded w-full" placeholder="e.g. 150">
                             </div>
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <label class="font-semibold">Batch No:</label>
-                                <input type="text" class="border p-1 rounded w-48" placeholder="e.g. MZ-10">
-                            </div>
-                            <div class="text-center pt-2">
-                                <button type="button" onclick="alert('Camera Opened!')" class="w-full bg-blue-600 text-white font-bold py-2 rounded-full">📷 Click for Photo Proof</button>
+                            <div class="flex flex-col border-b pb-2">
+                                <label class="font-semibold mb-1">Batch No:</label>
+                                <input type="text" class="border p-2 rounded w-full" placeholder="e.g. MZ-10">
                             </div>
                             <button type="button" onclick="alert('Data Saved Successfully!')" class="w-full mt-4 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700">SAVE ENTRY</button>
                         </form>
@@ -234,7 +212,6 @@
                 <section id="dispatch-view" class="content-view hidden p-6 flex justify-center bg-gray-100">
                      <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-500 w-full max-w-md h-fit">
                         <h2 class="text-xl font-bold text-blue-800 text-center mb-4">Dispatch Goods</h2>
-                        <!-- Simplified representation -->
                         <p class="text-center text-gray-500">Dispatch Form goes here...</p>
                      </div>
                 </section>
@@ -251,154 +228,7 @@
         </main>
     </div>
 
-    <!-- MAIN JAVASCRIPT LOGIC -->
-    <script>
-        // 1. FIREBASE CONFIG (Add your actual Firebase keys here)
-       const USER_ROLES = {
-    // तुमचा स्वतःचा ईमेल येथे ॲड करा
-    "ajay@gmail.com": { role: "ADMIN", department: "ALL" },
-    
-    // जुने युझर्स
-    "admin@crazyicecream.com": { role: "ADMIN", department: "ALL" },
-    "cone@crazyicecream.com": { role: "PRODUCTION", department: "CONE" },
-    "icecream@crazyicecream.com": { role: "PRODUCTION", department: "ICECREAM" },
-    "dispatch@crazyicecream.com": { role: "DISPATCH", department: "ALL" }
-};
-        const firebaseConfig = {
-            apiKey: "AIzaSyCu9C0ZpPnKzPCJ11gQc7Vlk3lnfaJH9fU",
-            authDomain: "my-login-app-df9a7.firebaseapp.com",
-            projectId: "my-login-app-df9a7",
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // 2. ROLE & DEPARTMENT CONFIGURATION (RBAC)
-        const DEPARTMENT_PRODUCTS = {
-            "CONE": ["Strawberry Cone", "Chocolate Small Cone", "Chocolate Big Cone", "Twin Cone"],
-            "ICECREAM": ["Vanilla 250ml", "Vanilla 500ml", "Vanilla 1L", "Vanilla 2L"],
-            "ALL": [] 
-        };
-        DEPARTMENT_PRODUCTS["ALL"] = [...DEPARTMENT_PRODUCTS["CONE"], ...DEPARTMENT_PRODUCTS["ICECREAM"]];
-
-        // Simulated Database for User Roles
-        const USER_ROLES = {
-            "admin@crazyicecream.com": { role: "ADMIN", department: "ALL" },
-            "cone@crazyicecream.com": { role: "PRODUCTION", department: "CONE" },
-            "icecream@crazyicecream.com": { role: "PRODUCTION", department: "ICECREAM" },
-            "dispatch@crazyicecream.com": { role: "DISPATCH", department: "ALL" }
-        };
-
-        // 3. AUTHENTICATION & LOGIN UI LOGIC
-        function toggleLoginView(view) {
-            document.getElementById('email-login-view').classList.add('hidden');
-            document.getElementById('phone-login-view').classList.add('hidden');
-            document.getElementById('otp-login-view').classList.add('hidden');
-            document.getElementById(`${view}-login-view`).classList.remove('hidden');
-        }
-
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            // Fake authentication for demo purposes if Firebase isn't linked yet
-            if(USER_ROLES[email]) {
-                startApp(email);
-            } else {
-                alert("User not found in system!");
-            }
-        });
-
-        function logout() { location.reload(); }
-
-        // 4. START APP & APPLY RBAC
-        function startApp(userEmail) {
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('dashboard-container').classList.remove('hidden');
-            document.getElementById('user-display').innerText = userEmail;
-            
-            const userConfig = USER_ROLES[userEmail];
-            const role = userConfig.role;
-            const dept = userConfig.department;
-
-            // Apply Roles
-            if (role === "ADMIN") {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-                document.querySelectorAll('.production-tab, .dispatch-tab, .returns-tab').forEach(el => el.classList.remove('hidden'));
-                switchTab('dashboard-view', 'Live Dashboard');
-                renderPieChart();
-            } else if (role === "PRODUCTION") {
-                document.querySelector('.production-tab').classList.remove('hidden');
-                switchTab('production-view', 'Production Entry');
-                loadProductsInDropdown("production-product-list", dept);
-                updateTime();
-                setInterval(updateTime, 60000);
-            } else if (role === "DISPATCH") {
-                document.querySelector('.dispatch-tab').classList.remove('hidden');
-                switchTab('dispatch-view', 'Dispatch Goods');
-            }
-        }
-
-        // 5. HELPER FUNCTIONS
-        function loadProductsInDropdown(dropdownId, department) {
-            const select = document.getElementById(dropdownId);
-            if (!select) return;
-            select.innerHTML = "<option disabled selected>Select Product...</option>";
-            DEPARTMENT_PRODUCTS[department].forEach(prod => {
-                select.innerHTML += `<option value="${prod}">${prod}</option>`;
-            });
-        }
-
-        function updateTime() {
-            const now = new Date();
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
-            document.getElementById('autoDateTime').innerText = now.toLocaleString('en-IN', options);
-        }
-
-        // 6. NAVIGATION LOGIC
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
-                const title = link.innerText.trim();
-                switchTab(targetId, title);
-                
-                // Update active state in sidebar
-                document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
-                link.classList.add('active');
-            });
-        });
-
-        function switchTab(tabId, title) {
-            document.querySelectorAll('.content-view').forEach(view => view.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('main-title').innerText = title;
-        }
-
-        // 7. USER CONTROL (Admin) LOGIC
-        function toggleDepartmentSelect() {
-            const role = document.getElementById("new-user-role").value;
-            const deptDiv = document.getElementById("dept-selection-div");
-            if (role === "PRODUCTION") { deptDiv.classList.remove("hidden"); } 
-            else { deptDiv.classList.add("hidden"); }
-        }
-
-        function saveNewUser() {
-            const email = document.getElementById("new-user-email").value;
-            alert(`User ${email} Access Saved successfully!`);
-            document.getElementById("add-user-form").reset();
-            toggleDepartmentSelect();
-        }
-
-        // 8. PIE CHART (Dashboard)
-        function renderPieChart() {
-            const ctx = document.getElementById('myPieChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Production', 'Dispatch', 'Damage'],
-                    datasets: [{ data: [1250, 800, 25], backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'] }]
-                }
-            });
-        }
-    </script>
+    <!-- LINKING JAVASCRIPT FILE -->
+    <script src="app.js"></script>
 </body>
 </html>
