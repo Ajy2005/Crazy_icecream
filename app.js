@@ -26,7 +26,7 @@ let USER_DATABASE = {
         department: "ICECREAM", password: "123456" 
     },"a9529978587": { 
         name: "Ajay", createDate: "19-07-2026", role: "RETURN", 
-        department: "ICECREAM", password: "123456" 
+        department: "ALL ACCESS", password: "123456" 
 };
 
 // 3. LOGIN LOGIC
