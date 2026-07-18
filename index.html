@@ -4,463 +4,391 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crazy Icecream - Production Management</title>
-    <!-- Logo -->
-    <link rel="icon" href="images/icecream-logo.png" sizes="any">
-    <!-- FontAwesome for Icons -->
+    
+    <!-- FontAwesome & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase -->
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
 
-        body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--primary-bg, #f8fafc);
-        }
-
-        /* --- LOGIN PAGE STYLES (MODIFIED FOR CRAZY ICECREAM) --- */
+        /* --- LOGIN PAGE --- */
         .login-section {
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            z-index: 1000;
-            /* Professional Blue Gradient Background */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
             background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%);
         }
-
         .login-box {
-            position: relative;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 20px;
+            width: 100%; max-width: 420px; padding: 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.15);
         }
+        .login-box h2 { color: #1e3a8a; font-size: 2em; font-weight: 700; text-align: center; margin-bottom: 20px; }
+        .input-group label { color: #1e3a8a; font-weight: 600; margin-bottom: 5px; display: block; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px; outline: none; }
+        .input-group input:focus { border-color: #3b82f6; }
+        .login-btn { width: 100%; padding: 12px; background: #2563eb; color: #fff; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .login-btn:hover { background: #1d4ed8; }
+        .switch-method { color: #2563eb; font-size: 0.9em; text-align: center; margin-top: 10px; cursor: pointer; text-decoration: underline; }
 
-        .login-box h2 {
-            width: 100%;
-            text-align: center;
-            font-size: 2em;
-            font-weight: 700;
-            color: #1e3a8a; /* Dark Blue */
-            margin-bottom: 5px;
-        }
-
-        .login-box .input-group { position: relative; }
-        
-        .login-box .input-group label {
-            color: #1e3a8a; 
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .login-box .input-group input {
-            width: 100%;
-            padding: 14px 20px;
-            outline: none;
-            font-size: 1.1em;
-            color: #1e40af; 
-            border-radius: 12px;
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            transition: 0.3s;
-        }
-        
-        .login-box .input-group input:focus {
-            border-color: #3b82f6;
-            background: #fff;
-        }
-
-        .login-box button {
-            width: 100%;
-            padding: 14px 20px;
-            border: none;
-            outline: none;
-            background: #2563eb; 
-            color: #fff;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 600;
-            transition: 0.3s;
-            border-radius: 12px;
-            margin-top: 10px;
-        }
-        
-        .login-box button:hover:not(:disabled) { background: #1d4ed8; }
-        .login-box button:disabled { background-color:#93c5fd; cursor: not-allowed; }
-
-        .switch-login-method {
-            font-size: 0.95em;
-            color: #2563eb; 
-            font-weight: 500;
-            text-decoration: underline;
-            cursor: pointer;
-            text-align: center;
-            margin-top: 5px;
-        }
-        
-        .error-message {
-            color: #b91c1c;
-            font-weight: 600;
-            background-color: #fee2e2;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #f87171;
-        }
-
-        /* --- DASHBOARD STYLES --- */
-        :root { 
-            --primary-bg: #f8fafc; 
-            --sidebar-bg: #1e293b; 
-            --sidebar-text: #cbd5e1; 
-            --sidebar-hover-bg: #334155; 
-            --accent-color: #3b82f6; 
-            --accent-color-dark: #2563eb; 
-            --danger-color: #dc2626; 
-            --danger-color-dark: #b91c1c; 
-            --text-dark: #0f172a; 
-            --text-light: #64748b; 
-            --card-bg: #ffffff; 
-            --border-color: #e2e8f0; 
-            --shadow-color: rgba(149, 157, 165, 0.1); 
-        }
-        
+        /* --- DASHBOARD LAYOUT --- */
         .hidden { display: none !important; }
-        .dashboard-container { display: flex; height: 100vh; opacity: 0; transition: opacity .5s ease; }
-        .dashboard-container.visible { opacity: 1; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; flex-shrink: 0; padding: 20px; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; transition: left 0.3s ease-in-out; z-index: 100;}
-        .sidebar-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--sidebar-hover-bg); }
-        .sidebar-header h2 { font-size: 1.4rem; font-weight: 600; color: #fff; margin-top: 10px; }
-        .sidebar-nav ul { list-style: none; padding: 0; }
-        .sidebar-nav li a { display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; padding: 15px 20px; border-radius: 8px; margin-bottom: 10px; transition: background-color .2s,color .2s; font-weight: 500; }
-        .sidebar-nav li a.active, .sidebar-nav li a:hover { background-color: var(--accent-color); color: #fff; }
-        .sidebar-nav li a i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
-        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 30px; display: flex; flex-direction: column; height: 100vh; transition: margin-left 0.3s ease-in-out; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-shrink: 0; }
-        .header-title-wrapper { display: flex; align-items: center; gap: 20px; }
-        .header h1 { font-size: 2.2rem; color: var(--text-dark); font-weight: 700; }
-        .open-sheet-btn { display: inline-flex; align-items: center; gap: 8px; background-color: var(--accent-color); color: #fff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease; }
-        .open-sheet-btn:hover { background-color: var(--accent-color-dark); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .user-profile { display: flex; align-items: center; gap: 15px; font-size: 1rem; }
-        .user-profile span { font-weight: 600; color: var(--text-dark); }
-        .logout-btn { background: 0 0; border: none; color: var(--danger-color); font-size: 1.2rem; cursor: pointer; background-color: #fee2e2; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
-        .logout-btn:hover { background-color: #fecaca; color: var(--danger-color-dark); }
-        .content-wrapper { flex-grow: 1; overflow: hidden; border-radius: 12px; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); }
-        .content-view { width: 100%; height: 100%; animation: fadeIn .5s ease-in-out; }
-        .content-view iframe { width: 100%; height: 100%; border: none; }
+        .sidebar { width: 260px; background: #1e293b; color: #cbd5e1; height: 100vh; position: fixed; top: 0; left: 0; padding: 20px; z-index: 100;}
+        .sidebar h2 { color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; padding-bottom: 20px; border-bottom: 1px solid #334155; margin-bottom: 20px;}
+        .sidebar-nav a { display: flex; align-items: center; padding: 12px 15px; color: #cbd5e1; text-decoration: none; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; font-weight: 500;}
+        .sidebar-nav a.active, .sidebar-nav a:hover { background: #3b82f6; color: #fff; }
+        .sidebar-nav i { width: 25px; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .main-content { margin-left: 260px; padding: 30px; height: 100vh; display: flex; flex-direction: column; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .content-wrapper { flex-grow: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0; }
+        .content-view { width: 100%; height: 100%; overflow-y: auto; }
         
-        .menu-toggle-btn { display: none; background: none; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer; }
-        .content-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 99; opacity: 0; transition: opacity 0.3s ease-in-out; }
-        .content-overlay.active { display: block; opacity: 1; }
-
-        @media (max-width: 992px) { 
-            .menu-toggle-btn { display: block; } 
-            .sidebar { left: -260px; box-shadow: 5px 0 15px rgba(0,0,0,0.1); } 
-            .sidebar.open { left: 0; } 
-            .main-content { margin-left: 0; width: 100%; padding: 20px; } 
-            .header { flex-wrap: wrap; gap: 15px; } 
-            .header h1 { font-size: 1.8rem; } 
-            .user-profile span { display: none; } 
-        }
-        @media (max-width: 768px) { 
-            .login-box { width: 90%; padding: 25px; } 
-            .login-box h2 { font-size: 1.8em; } 
-            .header h1 { font-size: 1.5rem; } 
-            .open-sheet-btn { padding: 6px 12px; font-size: 0.8rem; } 
+        @media (max-width: 992px) {
+            .sidebar { left: -260px; }
+            .main-content { margin-left: 0; }
         }
     </style>
 </head>
 <body>
-    
+
+    <!-- 1. LOGIN SCREEN -->
     <div id="login-container">
         <section class="login-section">
             <div class="login-box">
-                <h2>Staff Login</h2>
-
+                <h2>Crazy Icecream</h2>
+                
                 <div id="email-login-view">
                     <form id="login-form">
                         <div class="input-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" required placeholder="you@crazyicecream.com">
+                            <label>Email Address</label>
+                            <input type="email" id="email" required placeholder="user@crazyicecream.com">
                         </div>
                         <div class="input-group">
-                            <label for="password">Password</label>
+                            <label>Password</label>
                             <input type="password" id="password" required placeholder="••••••••">
                         </div>
-                        <button type="submit">Login</button>
+                        <button type="submit" class="login-btn">Login</button>
                     </form>
-                    <p class="switch-login-method" onclick="app.toggleLoginView('phone')">Login with Mobile OTP</p>
+                    <p class="switch-method" onclick="toggleLoginView('phone')">Login with Mobile OTP</p>
                 </div>
                 
                 <div id="phone-login-view" class="hidden">
                     <form id="phone-login-form">
                         <div class="input-group">
-                            <label for="phone-number">Mobile Number</label>
+                            <label>Mobile Number</label>
                             <input type="tel" id="phone-number" placeholder="+91 98765 43210" required>
                         </div>
-                        <button id="send-otp-btn" type="submit">Send OTP</button>
+                        <button type="submit" class="login-btn" id="send-otp-btn">Send OTP</button>
                     </form>
-                    <p class="switch-login-method" onclick="app.toggleLoginView('email')">Login with Email</p>
+                    <p class="switch-method" onclick="toggleLoginView('email')">Login with Email</p>
                 </div>
 
                 <div id="otp-login-view" class="hidden">
                     <form id="otp-login-form">
-                        <p style="color: #1e3a8a; text-align: center; margin-bottom: 15px; font-size: 0.9em;">Enter the 6-digit code sent to your mobile.</p>
+                        <p class="text-center text-sm text-blue-800 mb-2">Enter 6-digit OTP sent to your phone</p>
                         <div class="input-group">
-                            <label for="otp-code">OTP Code</label>
                             <input type="number" id="otp-code" required>
                         </div>
-                        <button id="verify-otp-btn" type="submit">Verify OTP</button>
+                        <button type="submit" class="login-btn">Verify OTP</button>
                     </form>
-                    <p class="switch-login-method" onclick="app.toggleLoginView('phone')">Change Number</p>
                 </div>
                 
-                <p id="error-message" class="error-message hidden"></p>
+                <p id="error-message" class="text-red-500 font-bold text-center mt-3 hidden"></p>
                 <div id="recaptcha-container"></div>
             </div>
         </section>
     </div>
 
-    <!-- Crazy Icecream Dashboard -->
-    <div id="dashboard-container" class="dashboard-container hidden">
-        <div id="content-overlay" class="content-overlay"></div>
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>Crazy Icecream</h2>
-            </div>
+    <!-- 2. MAIN APP DASHBOARD -->
+    <div id="dashboard-container" class="hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h2>🍦 Crazy Icecream</h2>
             <nav class="sidebar-nav">
-                <ul>
-                    <!-- New Links Added Here -->
-                    <li><a href="#dashboard-view" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
-                    <li><a href="#production-view"><i class="fa-solid fa-industry"></i> Production</a></li>
-                    <li><a href="#dispatch-view"><i class="fa-solid fa-truck-fast"></i> Dispatch</a></li>
-                    <li><a href="#returns-view"><i class="fa-solid fa-rotate-left"></i> Returns</a></li>
+                <ul id="nav-list">
+                    <!-- Admin Tabs -->
+                    <li class="admin-only hidden"><a href="#dashboard-view" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Live Dashboard</a></li>
+                    <li class="admin-only hidden"><a href="#user-control-view" class="nav-link"><i class="fa-solid fa-users-gear"></i> User Control</a></li>
+                    
+                    <!-- Operator Tabs -->
+                    <li class="production-tab hidden"><a href="#production-view" class="nav-link"><i class="fa-solid fa-industry"></i> Production Entry</a></li>
+                    <li class="dispatch-tab hidden"><a href="#dispatch-view" class="nav-link"><i class="fa-solid fa-truck-fast"></i> Dispatch</a></li>
+                    <li class="returns-tab hidden"><a href="#returns-view" class="nav-link"><i class="fa-solid fa-rotate-left"></i> Returns</a></li>
                 </ul>
             </nav>
         </aside>
-        
+
+        <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <div class="header-title-wrapper">
-                    <button id="menu-toggle-btn" class="menu-toggle-btn"><i class="fa-solid fa-bars"></i></button>
-                    <h1 id="main-header-title">Dashboard</h1>
-                    <a href="#" id="open-sheet-btn" class="open-sheet-btn hidden" target="_blank">
-                        View Database <i class="fa-solid fa-database"></i>
-                    </a>
-                </div>
-                <div class="user-profile">
-                    <span id="user-email"></span>
-                    <button id="logout-btn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <h1 id="main-title" class="text-3xl font-bold text-gray-800">Dashboard</h1>
+                <div class="flex items-center gap-4">
+                    <span id="user-display" class="font-bold text-blue-800"></span>
+                    <button onclick="logout()" class="bg-red-100 text-red-600 px-3 py-2 rounded-full hover:bg-red-200"><i class="fa-solid fa-power-off"></i></button>
                 </div>
             </header>
-            
-            <!-- IFRAME SECTIONS -->
+
             <div class="content-wrapper">
                 
-                <!-- 1. Admin Dashboard View -->
-                <section id="dashboard-view" class="content-view">
-                   <iframe src="YOUR_DASHBOARD_APPSCRIPT_URL_HERE"></iframe>
-                </section>
-                
-                <!-- 2. Production Entry View -->
-                <section id="production-view" class="content-view hidden">
-                  <iframe src="YOUR_PRODUCTION_APPSCRIPT_URL_HERE"></iframe>
-                </section>
-                
-                <!-- 3. Dispatch View -->
-                <section id="dispatch-view" class="content-view hidden">
-                   <iframe src="YOUR_DISPATCH_APPSCRIPT_URL_HERE"></iframe>
+                <!-- A. DASHBOARD VIEW (Admin Only) -->
+                <section id="dashboard-view" class="content-view p-6 bg-gray-50">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                            <p class="text-gray-500 text-sm">Today's Production</p>
+                            <h3 class="text-2xl font-bold">1,250 Boxes</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                            <p class="text-gray-500 text-sm">Today's Dispatch</p>
+                            <h3 class="text-2xl font-bold">800 Boxes</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                            <p class="text-gray-500 text-sm">Current Stock</p>
+                            <h3 class="text-2xl font-bold">3,450 Boxes</h3>
+                        </div>
+                    </div>
+                    <!-- Chart Placeholder -->
+                    <div class="bg-white p-6 rounded-lg shadow w-full max-w-md mx-auto">
+                        <h3 class="text-lg font-bold mb-4 text-center">Month Report</h3>
+                        <canvas id="myPieChart"></canvas>
+                    </div>
                 </section>
 
-                <!-- 4. Returns View -->
-                <section id="returns-view" class="content-view hidden">
-                   <iframe src="YOUR_RETURNS_APPSCRIPT_URL_HERE"></iframe>
+                <!-- B. USER CONTROL VIEW (Admin Only) -->
+                <section id="user-control-view" class="content-view hidden p-6 bg-gray-50">
+                    <h2 class="text-2xl font-bold text-blue-900 mb-6 border-b pb-2"><i class="fa-solid fa-users-gear"></i> User & Department Control</h2>
+                    <div class="bg-white p-6 rounded-xl shadow-md max-w-lg">
+                        <form id="add-user-form" class="space-y-4">
+                            <div>
+                                <label class="font-semibold">User Email</label>
+                                <input type="text" id="new-user-email" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="operator@crazyicecream.com">
+                            </div>
+                            <div>
+                                <label class="font-semibold">Select Role</label>
+                                <select id="new-user-role" onchange="toggleDepartmentSelect()" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                                    <option value="" disabled selected>Choose Role...</option>
+                                    <option value="PRODUCTION">Machine Operator (Production)</option>
+                                    <option value="DISPATCH">Dispatcher</option>
+                                    <option value="ADMIN">Admin</option>
+                                </select>
+                            </div>
+                            <div id="dept-selection-div" class="hidden">
+                                <label class="font-semibold">Assign Department</label>
+                                <select id="new-user-dept" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                                    <option value="" disabled selected>Choose Dept...</option>
+                                    <option value="CONE">Cone Department</option>
+                                    <option value="ICECREAM">Icecream Processing</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="saveNewUser()" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700">Save User</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- C. PRODUCTION VIEW (Operator) -->
+                <section id="production-view" class="content-view hidden p-6 flex justify-center bg-gray-100">
+                    <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-500 w-full max-w-md h-fit">
+                        <div class="text-center mb-6">
+                            <h2 class="text-xl font-bold text-blue-800 underline">Production Entry</h2>
+                            <p class="text-sm text-red-500 font-bold">(Only for operator - No Edit)</p>
+                        </div>
+                        <form class="space-y-4">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <label class="font-semibold">Date & Time:</label>
+                                <span id="autoDateTime" class="bg-gray-200 px-2 py-1 rounded text-sm font-mono"></span>
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <label class="font-semibold">Product Name:</label>
+                                <!-- RBAC will fill this Dropdown based on Department -->
+                                <select id="production-product-list" class="border p-1 rounded w-48 font-semibold"></select>
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <label class="font-semibold">Quantity:</label>
+                                <input type="number" class="border p-1 rounded w-48" placeholder="e.g. 150">
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <label class="font-semibold">Batch No:</label>
+                                <input type="text" class="border p-1 rounded w-48" placeholder="e.g. MZ-10">
+                            </div>
+                            <div class="text-center pt-2">
+                                <button type="button" onclick="alert('Camera Opened!')" class="w-full bg-blue-600 text-white font-bold py-2 rounded-full">📷 Click for Photo Proof</button>
+                            </div>
+                            <button type="button" onclick="alert('Data Saved Successfully!')" class="w-full mt-4 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700">SAVE ENTRY</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- D. DISPATCH VIEW -->
+                <section id="dispatch-view" class="content-view hidden p-6 flex justify-center bg-gray-100">
+                     <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-500 w-full max-w-md h-fit">
+                        <h2 class="text-xl font-bold text-blue-800 text-center mb-4">Dispatch Goods</h2>
+                        <!-- Simplified representation -->
+                        <p class="text-center text-gray-500">Dispatch Form goes here...</p>
+                     </div>
+                </section>
+
+                <!-- E. RETURNS VIEW -->
+                <section id="returns-view" class="content-view hidden p-6 flex justify-center bg-gray-100">
+                     <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-yellow-500 w-full max-w-md h-fit">
+                        <h2 class="text-xl font-bold text-yellow-600 text-center mb-4">Returns / Damage Entry</h2>
+                        <p class="text-center text-gray-500">Returns Form goes here...</p>
+                     </div>
                 </section>
 
             </div>
         </main>
     </div>
 
-    <!-- JavaScript (Firebase & Navigation Logic) -->
+    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-    const app = (() => {
-        // --- 1. CORE SETUP & CONFIGURATION ---
-        const CONFIG = {
-            // NOTE: Keep your Firebase config here
-            firebase: { apiKey: "AIzaSyCu9C0ZpPnKzPCJ11gQc7Vlk3lnfaJH9fU", authDomain: "my-login-app-df9a7.firebaseapp.com", projectId: "my-login-app-df9a7", storageBucket: "my-login-app-df9a7.appspot.com", messagingSenderId: "325062660131", appId: "1:325062660131:web:09965afc828fcb26d76196" },
+        // 1. FIREBASE CONFIG (Add your actual Firebase keys here)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // 2. ROLE & DEPARTMENT CONFIGURATION (RBAC)
+        const DEPARTMENT_PRODUCTS = {
+            "CONE": ["Strawberry Cone", "Chocolate Small Cone", "Chocolate Big Cone", "Twin Cone"],
+            "ICECREAM": ["Vanilla 250ml", "Vanilla 500ml", "Vanilla 1L", "Vanilla 2L"],
+            "ALL": [] 
+        };
+        DEPARTMENT_PRODUCTS["ALL"] = [...DEPARTMENT_PRODUCTS["CONE"], ...DEPARTMENT_PRODUCTS["ICECREAM"]];
+
+        // Simulated Database for User Roles
+        const USER_ROLES = {
+            "admin@crazyicecream.com": { role: "ADMIN", department: "ALL" },
+            "cone@crazyicecream.com": { role: "PRODUCTION", department: "CONE" },
+            "icecream@crazyicecream.com": { role: "PRODUCTION", department: "ICECREAM" },
+            "dispatch@crazyicecream.com": { role: "DISPATCH", department: "ALL" }
         };
 
-        // Put the Google Sheet Master Database Links Here
-        const GOOGLE_SHEET_URLS = {
-            'dashboard-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit',
-            'production-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit',
-            'dispatch-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit',
-            'returns-view': 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit'
-        };
-
-        const state = { auth: null, recaptchaVerifier: null, confirmationResult: null, navInitialized: false };
-        const DOMElements = {
-            loginContainer: document.getElementById('login-container'),
-            dashboardContainer: document.getElementById('dashboard-container'),
-            userEmail: document.getElementById('user-email'),
-            emailLoginView: document.getElementById('email-login-view'),
-            phoneLoginView: document.getElementById('phone-login-view'),
-            otpLoginView: document.getElementById('otp-login-view'),
-            errorMessage: document.getElementById('error-message'),
-            mainHeaderTitle: document.getElementById('main-header-title'),
-            openSheetBtn: document.getElementById('open-sheet-btn'),
-            menuToggleBtn: document.getElementById('menu-toggle-btn'),
-            sidebar: document.getElementById('sidebar'),
-            contentOverlay: document.getElementById('content-overlay'),
-        };
-        
-        // --- 2. UI & NAVIGATION ---
-        function handleNavigation(e) {
-            e.preventDefault();
-            const link = e.currentTarget;
-            const targetId = link.getAttribute('href').substring(1);
-
-            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
-            link.classList.add('active');
-
-            document.querySelectorAll('.content-view').forEach(view => {
-                view.classList.toggle('hidden', view.id !== targetId);
-            });
-
-            DOMElements.mainHeaderTitle.textContent = link.innerText.trim();
-            
-            if (GOOGLE_SHEET_URLS[targetId] && GOOGLE_SHEET_URLS[targetId] !== 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit') {
-                DOMElements.openSheetBtn.href = GOOGLE_SHEET_URLS[targetId];
-                DOMElements.openSheetBtn.classList.remove('hidden');
-            } else {
-                DOMElements.openSheetBtn.classList.add('hidden');
-            }
-            
-            if (window.innerWidth <= 992) {
-                closeMobileMenu();
-            }
-        }
-        
-        function showErrorMessage(message) {
-            DOMElements.errorMessage.textContent = message;
-            DOMElements.errorMessage.classList.remove('hidden');
-        }
-
+        // 3. AUTHENTICATION & LOGIN UI LOGIC
         function toggleLoginView(view) {
-            DOMElements.errorMessage.classList.add('hidden');
-            DOMElements.emailLoginView.classList.toggle('hidden', view !== 'email');
-            DOMElements.phoneLoginView.classList.toggle('hidden', view !== 'phone');
-            DOMElements.otpLoginView.classList.toggle('hidden', view !== 'otp');
+            document.getElementById('email-login-view').classList.add('hidden');
+            document.getElementById('phone-login-view').classList.add('hidden');
+            document.getElementById('otp-login-view').classList.add('hidden');
+            document.getElementById(`${view}-login-view`).classList.remove('hidden');
         }
 
-        function openMobileMenu() {
-            DOMElements.sidebar.classList.add('open');
-            DOMElements.contentOverlay.classList.add('active');
-        }
-        function closeMobileMenu() {
-            DOMElements.sidebar.classList.remove('open');
-            DOMElements.contentOverlay.classList.remove('active');
-        }
-        
-        // --- 3. INITIALIZATION & AUTH ---
-        function init() {
-            firebase.initializeApp(CONFIG.firebase);
-            state.auth = firebase.auth();
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            // Fake authentication for demo purposes if Firebase isn't linked yet
+            if(USER_ROLES[email]) {
+                startApp(email);
+            } else {
+                alert("User not found in system!");
+            }
+        });
+
+        function logout() { location.reload(); }
+
+        // 4. START APP & APPLY RBAC
+        function startApp(userEmail) {
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('dashboard-container').classList.remove('hidden');
+            document.getElementById('user-display').innerText = userEmail;
             
-            state.auth.onAuthStateChanged(user => {
-                if (user) {
-                    DOMElements.userEmail.textContent = user.email || user.phoneNumber;
-                    DOMElements.loginContainer.classList.add('hidden');
-                    DOMElements.dashboardContainer.classList.remove('hidden');
-                    setTimeout(() => DOMElements.dashboardContainer.classList.add('visible'), 50);
+            const userConfig = USER_ROLES[userEmail];
+            const role = userConfig.role;
+            const dept = userConfig.department;
 
-                    if (!state.navInitialized) {
-                        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-                            link.addEventListener('click', handleNavigation);
-                        });
-                        DOMElements.menuToggleBtn.addEventListener('click', openMobileMenu);
-                        DOMElements.contentOverlay.addEventListener('click', closeMobileMenu);
-                        state.navInitialized = true;
-                    }
-                    document.querySelector('.sidebar-nav a[href="#dashboard-view"]').click();
+            // Apply Roles
+            if (role === "ADMIN") {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.production-tab, .dispatch-tab, .returns-tab').forEach(el => el.classList.remove('hidden'));
+                switchTab('dashboard-view', 'Live Dashboard');
+                renderPieChart();
+            } else if (role === "PRODUCTION") {
+                document.querySelector('.production-tab').classList.remove('hidden');
+                switchTab('production-view', 'Production Entry');
+                loadProductsInDropdown("production-product-list", dept);
+                updateTime();
+                setInterval(updateTime, 60000);
+            } else if (role === "DISPATCH") {
+                document.querySelector('.dispatch-tab').classList.remove('hidden');
+                switchTab('dispatch-view', 'Dispatch Goods');
+            }
+        }
 
-                } else {
-                    toggleLoginView('email');
-                    DOMElements.loginContainer.classList.remove('hidden');
-                    DOMElements.dashboardContainer.classList.add('hidden');
-                    DOMElements.dashboardContainer.classList.remove('visible');
-                    if(state.navInitialized) {
-                        DOMElements.menuToggleBtn.removeEventListener('click', openMobileMenu);
-                        DOMElements.contentOverlay.removeEventListener('click', closeMobileMenu);
-                        state.navInitialized = false;
-                    }
-                    if (!state.recaptchaVerifier) {
-                         state.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-                    }
+        // 5. HELPER FUNCTIONS
+        function loadProductsInDropdown(dropdownId, department) {
+            const select = document.getElementById(dropdownId);
+            if (!select) return;
+            select.innerHTML = "<option disabled selected>Select Product...</option>";
+            DEPARTMENT_PRODUCTS[department].forEach(prod => {
+                select.innerHTML += `<option value="${prod}">${prod}</option>`;
+            });
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+            document.getElementById('autoDateTime').innerText = now.toLocaleString('en-IN', options);
+        }
+
+        // 6. NAVIGATION LOGIC
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const title = link.innerText.trim();
+                switchTab(targetId, title);
+                
+                // Update active state in sidebar
+                document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        function switchTab(tabId, title) {
+            document.querySelectorAll('.content-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('main-title').innerText = title;
+        }
+
+        // 7. USER CONTROL (Admin) LOGIC
+        function toggleDepartmentSelect() {
+            const role = document.getElementById("new-user-role").value;
+            const deptDiv = document.getElementById("dept-selection-div");
+            if (role === "PRODUCTION") { deptDiv.classList.remove("hidden"); } 
+            else { deptDiv.classList.add("hidden"); }
+        }
+
+        function saveNewUser() {
+            const email = document.getElementById("new-user-email").value;
+            alert(`User ${email} Access Saved successfully!`);
+            document.getElementById("add-user-form").reset();
+            toggleDepartmentSelect();
+        }
+
+        // 8. PIE CHART (Dashboard)
+        function renderPieChart() {
+            const ctx = document.getElementById('myPieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Production', 'Dispatch', 'Damage'],
+                    datasets: [{ data: [1250, 800, 25], backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'] }]
                 }
             });
-
-            document.getElementById('login-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                state.auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value)
-                    .catch(err => { showErrorMessage(err.message); });
-            });
-            
-            document.getElementById('phone-login-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const btn = e.target.querySelector('button');
-                btn.disabled = true;
-                btn.textContent = 'Sending...';
-                state.auth.signInWithPhoneNumber(document.getElementById('phone-number').value, state.recaptchaVerifier)
-                    .then(res => { state.confirmationResult = res; toggleLoginView('otp'); })
-                    .catch(err => { showErrorMessage("Error: " + err.message); if(typeof state.recaptchaVerifier.render === 'function') {state.recaptchaVerifier.render().then(id => state.recaptchaVerifier.reset(id));} })
-                    .finally(() => { btn.disabled = false; btn.textContent = 'Send OTP'; });
-            });
-
-            document.getElementById('otp-login-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const btn = e.target.querySelector('button');
-                btn.disabled = true;
-                btn.textContent = 'Verifying...';
-                state.confirmationResult.confirm(document.getElementById('otp-code').value)
-                    .catch(err => { showErrorMessage("Invalid OTP. Please try again."); })
-                    .finally(() => { btn.disabled = false; btn.textContent = 'Verify OTP'; });
-            });
-
-            document.getElementById('logout-btn')?.addEventListener('click', () => state.auth.signOut());
         }
-
-        return { init, toggleLoginView };
-    })();
-
-    document.addEventListener('DOMContentLoaded', app.init);
     </script>
 </body>
 </html>
